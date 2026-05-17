@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 import * as api from "./api";
 import type { Recipe } from "./shared/types";
+import RecipeCard from "./components/RecipeCard";
+import RecipeModal from "./components/RecipeModal";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | undefined>(
+    undefined,
+  );
+  const pageNumber = useRef(1);
+
   const handleSearchSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -13,8 +20,20 @@ const App = () => {
     try {
       const recipes = await api.SearchRecipes(searchTerm, 1);
       setRecipes(recipes.results);
+      pageNumber.current = 1;
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const handleViewMoreClick = async () => {
+    const nextPage = pageNumber.current + 1;
+    try {
+      const nextRecipes = await api.SearchRecipes(searchTerm, nextPage);
+      setRecipes([...recipes, ...nextRecipes.results]);
+      pageNumber.current = nextPage;
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -30,11 +49,21 @@ const App = () => {
         <button type="submit">Submit</button>
       </form>
       {recipes.map((recipe) => (
-        <div key={recipe.id}>
-          <h2>{recipe.title}</h2>
-          <img src={recipe.image} alt={recipe.title} />
-        </div>
+        <RecipeCard
+          key={recipe.id}
+          recipe={recipe}
+          onClick={() => setSelectedRecipe(recipe)}
+        />
       ))}
+      <button className="view-more-button" onClick={handleViewMoreClick}>
+        view more
+      </button>
+      {selectedRecipe ? (
+        <RecipeModal
+          recipeId={selectedRecipe.id.toString()}
+          onClose={() => setSelectedRecipe(undefined)}
+        />
+      ) : null}
     </div>
   );
 };

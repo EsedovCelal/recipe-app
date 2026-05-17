@@ -11,3 +11,14 @@ export const SearchRecipes = async (searchTerm: string, page: number) => {
 
   return response.json();
 };
+
+export const getRecipeSummary = async (recipeId: string) => {
+  const url = new URL(`http://localhost:7000/api/recipes/${recipeId}/summary`);
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("HTTP error! status:" + response.status);
+  }
+
+  return response.json();
+};
