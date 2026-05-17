@@ -1,3 +1,5 @@
+import type { Recipe } from "./shared/types";
+
 export const SearchRecipes = async (searchTerm: string, page: number) => {
   const baseUrl = new URL("http://localhost:7000/api/recipes/search");
   baseUrl.searchParams.append("searchTerm", searchTerm);
@@ -21,4 +23,53 @@ export const getRecipeSummary = async (recipeId: string) => {
   }
 
   return response.json();
+};
+
+export const getFavoritesRecipes = async () => {
+  const url = new URL("http://localhost:7000/api/recipes/favorite");
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("HTTP error! status:" + response.status);
+  }
+
+  return response.json();
+};
+
+export const addFavoriteRecipe = async (recipe: Recipe) => {
+  const url = new URL("http://localhost:7000/api/recipes/favorite");
+  const body = {
+    recipeId: recipe.id,
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "Application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP error! status:" + response.status);
+  }
+};
+
+export const removeFavoriteRecipe = async (recipe: Recipe) => {
+  const url = new URL("http://localhost:7000/api/recipes/favorite");
+  const body = {
+    recipeId: recipe.id,
+  };
+
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "Application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP error! status:" + response.status);
+  }
 };
