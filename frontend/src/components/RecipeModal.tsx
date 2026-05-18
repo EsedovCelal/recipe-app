@@ -5,16 +5,19 @@ import * as RecipeAPI from "../api";
 interface Props {
   recipeId: string;
   onClose: () => void;
+  onLoadingChange: (isLoading: boolean) => void;
 }
 
-const RecipeModal = ({ recipeId, onClose }: Props) => {
+const RecipeModal = ({ recipeId, onClose, onLoadingChange }: Props) => {
   const [recipeSummary, setRecipeSummary] = useState<RecipeSummary>();
 
   useEffect(() => {
+    onLoadingChange(true);
     const fetchRecipeSummary = async () => {
       try {
         const summaryRecipe = await RecipeAPI.getRecipeSummary(recipeId);
         setRecipeSummary(summaryRecipe);
+        onLoadingChange(false);
       } catch (error) {
         console.log(error);
       }
